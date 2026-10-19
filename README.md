@@ -2,7 +2,7 @@
 
 Dashboard sederhana untuk menampilkan dan menganalisis data kepuasan mahasiswa terhadap layanan akademik menggunakan grafik batang, ringkasan statistik, dan tabel penilaian.
 
-Proyek ini dibuat sebagai implementasi materi **Human-Computer Interaction and Data Visualization** dalam kegiatan Informatics Practitioner Lecture Series 2026.
+Proyek ini dibuat sebagai studi kasus pembelajaran berdasarkan materi “Human-Computer Interaction and Data Visualization” oleh Arafat Febrian Dirza dari Badan Riset dan Inovasi Nasional (BRIN).
 
 ## 📌 Latar Belakang
 
