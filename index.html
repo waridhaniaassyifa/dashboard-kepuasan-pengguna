@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Kepuasan Pengguna</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fbf3f5;
+      color: #47242d;
+    }
+
+    header {
+      background: #570323;
+      color: white;
+      padding: 26px 7%;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 0;
+      color: #dbeafe;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 20px;
+    }
+
+    .filter, .panel, .stat {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 3px 12px #1e293b0b;
+    }
+
+    .filter {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 9px;
+    }
+
+    select {
+      width: 100%;
+      max-width: 360px;
+      padding: 11px;
+      border: 1px solid #e1cbd1;
+      border-radius: 7px;
+      background: white;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat p {
+      margin: 0 0 12px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .stat h2 {
+      margin: 0;
+      color: #17365d;
+      font-size: 27px;
+    }
+
+    .panel {
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      font-size: 19px;
+      margin: 0 0 8px;
+    }
+
+    .description {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    #chart {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .track {
+      height: 18px;
+      background: #e8edf5;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      background: #2878c8;
+      border-radius: 5px;
+      transition: width 0.4s ease;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #f5e8ea;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    .rating {
+      color: #17633a;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 650px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 22px;
+      }
+
+      main {
+        padding: 0 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Dashboard Kepuasan Pengguna</h1>
+    <p>Visualisasi sederhana untuk mengevaluasi layanan akademik mahasiswa.</p>
+  </header>
+
+  <main>
+    <section class="filter">
+      <label for="serviceFilter">Filter kategori layanan</label>
+      <select id="serviceFilter">
+        <option value="Semua">Semua layanan</option>
+        <option value="Administrasi">Administrasi</option>
+        <option value="Fasilitas">Fasilitas kampus</option>
+        <option value="Sistem Informasi">Sistem informasi</option>
+        <option value="Layanan Dosen">Layanan dosen</option>
+      </select>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <p>Jumlah Penilaian</p>
+        <h2 id="total">0</h2>
+      </div>
+
+      <div class="stat">
+        <p>Rata-rata Kepuasan</p>
+        <h2 id="average">0/5</h2>
+      </div>
+
+      <div class="stat">
+        <p>Layanan Terbaik</p>
+        <h2 id="best" style="font-size:20px">-</h2>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Grafik Kepuasan Layanan</h2>
+      <p class="description">
+        Rata-rata penilaian setiap kategori pada skala 1 sampai 5.
+      </p>
+      <div id="chart"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Data Penilaian Pengguna</h2>
+      <p class="description">
+        Tabel akan menyesuaikan kategori yang dipilih.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Nama</th>
+              <th>Layanan</th>
+              <th>Nilai</th>
+            </tr>
+          </thead>
+          <tbody id="dataTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+     Data simulasi untuk pembelajaran
+  </footer>
+
+  <script>
+    // Data simulasi penilaian mahasiswa
+    const data = [
+      { nama: "Andi", layanan: "Administrasi", nilai: 4 },
+      { nama: "Budi", layanan: "Administrasi", nilai: 5 },
+      { nama: "Citra", layanan: "Administrasi", nilai: 4 },
+      { nama: "Dina", layanan: "Fasilitas", nilai: 3 },
+      { nama: "Eka", layanan: "Fasilitas", nilai: 4 },
+      { nama: "Fajar", layanan: "Fasilitas", nilai: 3 },
+      { nama: "Gita", layanan: "Sistem Informasi", nilai: 5 },
+      { nama: "Hani", layanan: "Sistem Informasi", nilai: 4 },
+      { nama: "Indra", layanan: "Sistem Informasi", nilai: 5 },
+      { nama: "Joko", layanan: "Layanan Dosen", nilai: 4 },
+      { nama: "Kiki", layanan: "Layanan Dosen", nilai: 5 },
+      { nama: "Lina", layanan: "Layanan Dosen", nilai: 4 }
+    ];
+
+    const categories = [
+      "Administrasi",
+      "Fasilitas",
+      "Sistem Informasi",
+      "Layanan Dosen"
+    ];
+
+    const filter = document.getElementById("serviceFilter");
+
+    function renderDashboard() {
+      const selected = filter.value;
+
+      // Memfilter data berdasarkan kategori
+      const filtered = selected === "Semua"
+        ? data
+        : data.filter(item => item.layanan === selected);
+
+      // Menghitung rata-rata penilaian
+      const average = filtered.length
+        ? filtered.reduce((sum, item) => sum + item.nilai, 0)
+          / filtered.length
+        : 0;
+
+      document.getElementById("total").textContent =
+        filtered.length;
+
+      document.getElementById("average").textContent =
+        average.toFixed(2) + "/5";
+
+      // Menghitung rata-rata setiap kategori
+      const summaries = categories.map(category => {
+        const items = filtered.filter(
+          item => item.layanan === category
+        );
+
+        const avg = items.length
+          ? items.reduce((sum, item) => sum + item.nilai, 0)
+            / items.length
+          : 0;
+
+        return {
+          category,
+          average: avg,
+          count: items.length
+        };
+      }).filter(item => item.count > 0);
+
+      // Menentukan layanan dengan nilai tertinggi
+      const best = summaries.reduce(
+        (highest, item) =>
+          item.average > highest.average ? item : highest,
+        summaries[0] || { category: "-", average: 0 }
+      );
+
+      document.getElementById("best").textContent =
+        best.category;
+
+      // Menampilkan grafik batang
+      const chart = document.getElementById("chart");
+      chart.innerHTML = "";
+
+      summaries.forEach(item => {
+        const percentage = (item.average / 5) * 100;
+        const row = document.createElement("div");
+
+        row.innerHTML = `
+          <div class="bar-label">
+            <span>${item.category}</span>
+            <strong>${item.average.toFixed(2)} / 5</strong>
+          </div>
+          <div class="track"
+               role="img"
+               aria-label="${item.category}: ${item.average.toFixed(2)} dari 5">
+            <div class="bar" style="width:${percentage}%"></div>
+          </div>
+        `;
+
+        chart.appendChild(row);
+      });
+
+      // Menampilkan tabel penilaian
+      const table = document.getElementById("dataTable");
+      table.innerHTML = "";
+
+      filtered.forEach((item, index) => {
+        const row = document.createElement("tr");
+
+        [index + 1, item.nama, item.layanan, item.nilai]
+          .forEach((value, columnIndex) => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+
+            if (columnIndex === 3) {
+              cell.className = "rating";
+            }
+
+            row.appendChild(cell);
+          });
+
+        table.appendChild(row);
+      });
+    }
+
+    // Memperbarui dashboard saat filter berubah
+    filter.addEventListener("change", renderDashboard);
+
+    // Menampilkan dashboard pertama kali
+    renderDashboard();
+  </script>
+</body>
+</html>
